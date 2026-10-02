@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boardgame Karhutla Papua Barat Daya - Impostor Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #090d16; color: #f8fafc; }
+        .glass-panel { background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .pawn-p1 { background-color: #ef4444; border-color: #fca5a5; }
+        .pawn-p2 { background-color: #3b82f6; border-color: #93c5fd; }
+        .pawn-p3 { background-color: #eab308; border-color: #fef08a; }
+        .pawn-p4 { background-color: #10b981; border-color: #6ee7b7; }
+        .pawn-p5 { background-color: #a855f7; border-color: #d8b4fe; }
+        .pawn-p6 { background-color: #ec4899; border-color: #fbcfe8; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="glass-panel sticky top-0 z-40 px-4 py-3 border-b border-slate-800 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-br from-rose-600 to-indigo-700 rounded-xl text-white shadow-lg">
+                    <i class="fa-solid fa-user-ninja text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base md:text-xl font-black text-white tracking-wide flex items-center gap-2">
+                        BOARDGAME KARHUTLA PAPUA BARAT DAYA
+                        <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full font-bold">EDISI IMPOSTOR</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">27 Event Utama, 13 Event Plus, Titik Merah Presisi & Pion Menumpuk</p>
+                </div>
+            </div>
+
+            <!-- TOP STATS -->
+            <div id="top-stats-bar" class="hidden flex items-center space-x-4 bg-slate-900/90 px-4 py-2 rounded-2xl border border-slate-700">
+                <div class="text-center">
+                    <div class="text-[9px] text-slate-400 font-bold uppercase">Kesehatan Lingkungan</div>
+                    <div id="stat-health" class="text-sm md:text-base font-black text-emerald-400">100%</div>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <div class="text-[9px] text-slate-400 font-bold uppercase">Skor Tim</div>
+                    <div id="stat-score" class="text-sm md:text-base font-black text-amber-400">0</div>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <div class="text-[9px] text-slate-400 font-bold uppercase">Ronde</div>
+                    <div id="stat-round" class="text-sm md:text-base font-black text-indigo-400">1 / 6</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto p-3 md:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- SETUP MODAL (4-6 PLAYERS) -->
+        <div id="modal-setup" class="w-full max-w-lg mx-auto glass-panel p-6 md:p-8 rounded-3xl border border-slate-700 shadow-2xl relative my-auto">
+            <div class="text-center mb-6">
+                <div class="inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/30 mb-3">
+                    <i class="fa-solid fa-users-viewfinder text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white">Persiapan Tim & Mode Impostor</h2>
+                <p class="text-xs text-slate-400 mt-1">Pilih 4–6 pemain. Peran acak: Dokter, Polisi, Pemadam, Ketua Adat, Hakim, Warga.</p>
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Jumlah Pemain:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setPlayerCount(4)" id="pbtn-4" class="py-2.5 bg-indigo-600 text-white font-bold text-sm rounded-xl border border-indigo-500 shadow-md">4 Pemain</button>
+                        <button type="button" onclick="setPlayerCount(5)" id="pbtn-5" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl border border-slate-700">5 Pemain</button>
+                        <button type="button" onclick="setPlayerCount(6)" id="pbtn-6" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl border border-slate-700">6 Pemain</button>
+                    </div>
+                </div>
+
+                <div id="player-inputs-container" class="space-y-2.5 max-h-52 overflow-y-auto pr-1"></div>
+
+                <button type="button" onclick="startGameSession()" class="w-full bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-extrabold py-3.5 rounded-xl text-base shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Game & Pembagian Peran
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN DASHBOARD -->
+        <div id="gameplay-dashboard" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 w-full">
+
+            <!-- LEFT CONTROL PANEL -->
+            <div class="lg:col-span-4 flex flex-col space-y-4">
+
+                <!-- CEK PERAN -->
+                <div class="glass-panel p-3.5 rounded-2xl border border-slate-700 shadow-lg flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Cek Peran Rahasia</div>
+                        <div class="text-xs text-slate-300">Intip peran & status Impostor</div>
+                    </div>
+                    <button onclick="openCheckRoleModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye"></i> Intip Peran
+                    </button>
+                </div>
+
+                <!-- DADU MOVEMENT -->
+                <div class="glass-panel p-4 rounded-2xl border border-slate-700 shadow-lg">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs md:text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-dice text-amber-400"></i> Dadu Wilayah Terarah
+                        </h3>
+                        <span id="turn-indicator" class="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30">
+                            Giliran: Pemain 1
+                        </span>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-3 flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] text-slate-400 uppercase font-semibold">Hasil Dadu / Posisi:</div>
+                            <div id="dice-result-text" class="text-sm font-black text-amber-400">-</div>
+                        </div>
+                        <div id="dice-box" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-xl text-slate-300">
+                            <i class="fa-solid fa-dice-d6"></i>
+                        </div>
+                    </div>
+
+                    <button onclick="rollDiceCurrentPlayer()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-dice-three text-lg"></i> Kocok Dadu & Pindah Wilayah
+                    </button>
+                </div>
+
+                <!-- INPUT KARTU BENCANA UTAMA (1-27) -->
+                <div class="glass-panel p-4 rounded-2xl border border-slate-700 shadow-lg">
+                    <h3 class="text-xs md:text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-fire-extinguisher text-rose-500"></i> Kartu Event Utama (1–27)
+                    </h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Masukkan nomor kartu event.</p>
+
+                    <div class="flex gap-2">
+                        <input type="number" id="input-event-number" min="1" max="27" placeholder="Nomor 1-27" class="bg-slate-900 border border-slate-700 text-white font-bold text-center text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-rose-500">
+                        <button onclick="triggerEventByNumber()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition whitespace-nowrap shadow-md flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt"></i> Buka Event
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PANEL EVENT PLUS -->
+                <div id="panel-event-plus-trigger" class="glass-panel p-4 rounded-2xl border border-rose-500/50 bg-rose-950/20 shadow-lg relative opacity-50 pointer-events-none">
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="text-xs font-bold text-rose-400 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Tempat Kartu Event Plus
+                        </h3>
+                        <span class="text-[9px] bg-rose-500/30 text-rose-300 px-2 py-0.5 rounded font-bold">13 Kartu</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mb-2">Terbuka khusus saat pemain **SALAH KEPUTUSAN**. Jawab benar untuk dapat Clue Impostor!</p>
+                    <div class="flex gap-2">
+                        <input type="number" id="input-event-plus-number" min="1" max="13" placeholder="Kartu 1-13" class="bg-slate-900 border border-slate-700 text-white font-bold text-center text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <button onclick="triggerEventPlusByNumber()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition whitespace-nowrap shadow-md">
+                            Buka Plus
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ACTIVE EVENT DISPLAY -->
+                <div id="panel-active-event" class="hidden glass-panel p-4 rounded-2xl border border-slate-700 shadow-lg flex-grow flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-700">
+                            <span id="card-event-badge" class="px-2.5 py-0.5 text-[10px] font-bold rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                                Kartu Event #1
+                            </span>
+                            <span id="card-event-loc" class="text-xs font-semibold text-amber-400 flex items-center gap-1">
+                                <i class="fa-solid fa-location-dot"></i> Sorong
+                            </span>
+                        </div>
+
+                        <h3 id="card-event-title" class="text-xs md:text-sm font-bold text-amber-300 mb-2 leading-snug">Judul Bencana</h3>
+
+                        <div class="space-y-2 text-[11px]">
+                            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                                <span class="font-bold text-slate-300 block mb-0.5">📖 Cerita:</span>
+                                <p id="card-event-story" class="text-slate-400 leading-relaxed">-</p>
+                            </div>
+                            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                                <span class="font-bold text-slate-300 block mb-0.5">💥 Dampak:</span>
+                                <p id="card-event-impact" class="text-rose-300 leading-relaxed">-</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                                    <span class="font-bold text-indigo-300 block mb-0.5">📊 Data:</span>
+                                    <p id="card-event-data" class="text-slate-400 text-[10px]">-</p>
+                                </div>
+                                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+                                    <span class="font-bold text-amber-300 block mb-0.5">💬 Opini:</span>
+                                    <p id="card-event-opinion" class="text-slate-400 text-[10px]">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="dispatchNearestPionToEvent()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-person-walking-arrow-right text-base"></i> Buka Fase Keputusan
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL: INTERACTIVE MAP & OVERLAYS -->
+            <div class="lg:col-span-8 flex flex-col space-y-4">
+
+                <!-- PETA PAPUA BARAT DAYA DENGAN TITIK MERAH PRESISI -->
+                <div class="relative glass-panel rounded-3xl border border-slate-700 overflow-hidden shadow-2xl min-h-[460px] md:min-h-[520px] flex items-center justify-center">
+
+                    <img id="map-image" src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80" alt="Peta Papua Barat Daya" class="w-full h-full object-cover min-h-[460px] filter brightness-90 contrast-105">
+
+                    <!-- CONTAINER TITIK MERAH & PION MENUMPUK -->
+                    <div id="map-pins-container" class="absolute inset-0 pointer-events-none"></div>
+
+                    <!-- CUSTOM MAP UPLOADER -->
+                    <div class="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-xs flex items-center gap-2 z-10 shadow-lg pointer-events-auto">
+                        <i class="fa-solid fa-image text-amber-400"></i>
+                        <span class="text-slate-300 font-semibold text-[11px]">Ubah Gambar Peta:</span>
+                        <label class="cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition">
+                            Pilih File
+                            <input type="file" accept="image/*" class="hidden" onchange="uploadCustomMapImage(event)">
+                        </label>
+                    </div>
+
+                    <!-- MODAL DECISION PHASE -->
+                    <div id="modal-decision" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-30 p-4 md:p-6 flex flex-col justify-between pointer-events-auto">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <div>
+                                <span class="text-[10px] md:text-xs font-bold text-amber-400 uppercase tracking-wider">Fase Analisis & Keputusan</span>
+                                <h3 class="text-xs md:text-base font-black text-white">Kartu Penanggulangan Karhutla</h3>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-rose-950/90 border border-rose-800 px-3.5 py-1.5 rounded-2xl shadow-inner">
+                                <i class="fa-solid fa-stopwatch text-rose-400 text-lg animate-pulse"></i>
+                                <div>
+                                    <div class="text-[9px] text-rose-300 font-bold uppercase leading-none">Waktu</div>
+                                    <div id="timer-text" class="text-base md:text-lg font-black text-rose-400 leading-none">1:30</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-1 flex-grow overflow-y-auto">
+                            <!-- OPTION A -->
+                            <div onclick="selectDecisionOption(0)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-800 hover:border-amber-500 rounded-2xl p-3 flex flex-col justify-between transition group shadow-lg">
+                                <div>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-800 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition">Pilihan A</span>
+                                    <p id="opt-0-text" class="text-xs text-slate-300 leading-relaxed mt-2 mb-3">-</p>
+                                </div>
+                                <div class="border-t border-slate-800 pt-2">
+                                    <span class="text-[10px] font-bold text-slate-400 block mb-1">Token Logistik:</span>
+                                    <div id="opt-0-tokens" class="text-xs text-amber-300 font-bold"></div>
+                                </div>
+                            </div>
+                            <!-- OPTION B -->
+                            <div onclick="selectDecisionOption(1)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-800 hover:border-amber-500 rounded-2xl p-3 flex flex-col justify-between transition group shadow-lg">
+                                <div>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-800 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition">Pilihan B</span>
+                                    <p id="opt-1-text" class="text-xs text-slate-300 leading-relaxed mt-2 mb-3">-</p>
+                                </div>
+                                <div class="border-t border-slate-800 pt-2">
+                                    <span class="text-[10px] font-bold text-slate-400 block mb-1">Token Logistik:</span>
+                                    <div id="opt-1-tokens" class="text-xs text-amber-300 font-bold"></div>
+                                </div>
+                            </div>
+                            <!-- OPTION C -->
+                            <div onclick="selectDecisionOption(2)" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-800 hover:border-amber-500 rounded-2xl p-3 flex flex-col justify-between transition group shadow-lg">
+                                <div>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-800 text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition">Pilihan C</span>
+                                    <p id="opt-2-text" class="text-xs text-slate-300 leading-relaxed mt-2 mb-3">-</p>
+                                </div>
+                                <div class="border-t border-slate-800 pt-2">
+                                    <span class="text-[10px] font-bold text-slate-400 block mb-1">Token Logistik:</span>
+                                    <div id="opt-2-tokens" class="text-xs text-amber-300 font-bold"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODAL EVENT PLUS -->
+                    <div id="modal-event-plus" class="hidden absolute inset-0 bg-slate-950/98 backdrop-blur-md z-40 p-6 flex flex-col justify-between overflow-y-auto pointer-events-auto">
+                        <div class="border-b border-rose-800 pb-3">
+                            <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Kartu Event Plus</span>
+                            <h3 id="event-plus-title" class="text-base font-black text-white mt-0.5">Soal Event Plus</h3>
+                        </div>
+                        <div class="my-4 space-y-4">
+                            <p id="event-plus-question" class="text-sm font-bold text-amber-300 leading-relaxed">-</p>
+                            <div class="space-y-2">
+                                <button onclick="answerEventPlus('A')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-slate-200 transition" id="ep-opt-a">A. -</button>
+                                <button onclick="answerEventPlus('B')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-slate-200 transition" id="ep-opt-b">B. -</button>
+                                <button onclick="answerEventPlus('C')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border border-slate-700 p-3 rounded-xl text-xs text-slate-200 transition" id="ep-opt-c">C. -</button>
+                            </div>
+                        </div>
+                        <button onclick="closeEventPlusModal()" class="bg-slate-800 text-slate-400 text-xs py-2 rounded-xl">Batal</button>
+                    </div>
+
+                    <!-- MODAL CLUE DISPLAY -->
+                    <div id="modal-clue-display" class="hidden absolute inset-0 bg-slate-950/98 backdrop-blur-md z-50 p-6 flex flex-col justify-center items-center text-center pointer-events-auto">
+                        <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-3xl mb-3">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <span class="text-xs font-extrabold text-amber-400 uppercase tracking-widest">CLUE IMPOSTOR BUKA!</span>
+                        <div class="bg-slate-900 border border-amber-500/40 p-4 rounded-2xl max-w-md w-full my-3">
+                            <p id="clue-text-content" class="text-sm font-bold text-amber-300 leading-relaxed">"Clue Impostor..."</p>
+                        </div>
+                        <button onclick="closeClueModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg">Paham!</button>
+                    </div>
+
+                    <!-- MODAL VOTING IMPOSTOR -->
+                    <div id="modal-voting" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-40 p-6 flex flex-col justify-between pointer-events-auto">
+                        <div class="text-center">
+                            <span id="voting-round-title" class="text-xs font-bold text-rose-400 uppercase tracking-wider">Fase Menebak Impostor</span>
+                            <h3 class="text-lg font-black text-white mt-1">Siapa yang Kalian Curigai Sebagai IMPOSTOR?</h3>
+                        </div>
+                        <div id="voting-candidates-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 my-4"></div>
+                        <div class="flex justify-center items-center">
+                            <button onclick="skipVotingRound()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl text-xs border border-slate-700 transition">Lewati Voting</button>
+                        </div>
+                    </div>
+
+                    <!-- ROUND RESULT MODAL -->
+                    <div id="modal-round-result" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-md z-40 p-6 flex flex-col justify-center items-center text-center pointer-events-auto">
+                        <div id="result-icon-box" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-3"></div>
+                        <h3 id="result-title" class="text-xl font-extrabold text-white mb-2">Evaluasi Ronde</h3>
+                        <p id="result-desc" class="text-xs md:text-sm text-slate-300 max-w-md mb-4 leading-relaxed">-</p>
+
+                        <div class="flex items-center gap-6 bg-slate-900 border border-slate-800 px-6 py-3 rounded-2xl mb-4">
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Perubahan Skor</div>
+                                <div id="res-score-diff" class="text-base font-black text-amber-400">+0</div>
+                            </div>
+                            <div class="h-8 w-px bg-slate-800"></div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase">Kesehatan Lingkungan</div>
+                                <div id="res-health-diff" class="text-base font-black text-emerald-400">-0%</div>
+                            </div>
+                        </div>
+
+                        <button id="btn-show-explanation" onclick="openExplanationModal()" class="mb-4 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold px-5 py-2 rounded-xl text-xs transition flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-amber-400"></i> Lihat Penjelasan Kunci Jawaban
+                        </button>
+
+                        <button onclick="proceedFromRoundResult()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs md:text-sm shadow-lg">Lanjut Ronde <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+
+                    <!-- MODAL PENJELASAN EDUKASI -->
+                    <div id="modal-explanation" class="hidden absolute inset-0 bg-slate-950/98 backdrop-blur-md z-50 p-6 flex flex-col justify-between overflow-y-auto pointer-events-auto">
+                        <div class="border-b border-amber-500/30 pb-3 flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-amber-400">
+                                <i class="fa-solid fa-graduation-cap text-xl"></i>
+                                <h3 class="text-base font-black text-white">Edukasi: Analisis Kunci Jawaban</h3>
+                            </div>
+                            <button onclick="closeExplanationModal()" class="text-slate-400 hover:text-white text-lg font-bold"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="my-4 space-y-3">
+                            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-left">
+                                <h4 id="exp-title" class="text-xs font-bold text-amber-300 mb-1">Judul Event</h4>
+                                <p id="exp-content" class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">-</p>
+                            </div>
+                        </div>
+                        <button onclick="closeExplanationModal()" class="bg-indigo-600 text-white font-bold text-xs py-2.5 rounded-xl shadow-md">Kembali & Paham</button>
+                    </div>
+
+                    <!-- GAME OVER MODAL -->
+                    <div id="modal-game-over" class="hidden absolute inset-0 bg-slate-950/98 backdrop-blur-lg z-50 p-6 flex flex-col justify-center items-center text-center pointer-events-auto">
+                        <div class="p-4 bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30 mb-3 text-4xl"><i class="fa-solid fa-trophy"></i></div>
+                        <h2 class="text-2xl font-black text-white mb-1">Permainan Selesai!</h2>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl w-full max-w-xs space-y-3 my-4">
+                            <div class="flex justify-between items-center text-xs"><span class="text-slate-400">Skor Akhir:</span><span id="final-score-val" class="text-base font-black text-amber-400">0</span></div>
+                            <div class="flex justify-between items-center text-xs"><span class="text-slate-400">Kesehatan Lingkungan:</span><span id="final-health-val" class="text-base font-black text-emerald-400">100%</span></div>
+                            <div class="flex justify-between items-center text-xs"><span class="text-slate-400">Impostor:</span><span id="final-impostor-list" class="text-xs font-bold text-rose-400">-</span></div>
+                        </div>
+                        <button onclick="resetGameToSetup()" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl text-xs">Mainkan Kembali</button>
+                    </div>
+
+                    <!-- CHECK ROLE MODAL -->
+                    <div id="modal-check-role" class="hidden absolute inset-0 bg-slate-950/98 backdrop-blur-md z-50 p-6 flex flex-col justify-center items-center text-center pointer-events-auto">
+                        <div class="max-w-xs w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl">
+                            <h3 class="text-base font-extrabold text-white mb-3">Intip Peran Rahasia:</h3>
+                            <select id="select-role-player" onchange="displaySecretRole()" class="w-full bg-slate-800 border border-slate-700 text-amber-400 font-bold text-xs rounded-xl p-2.5 mb-4"></select>
+                            <div id="secret-role-display-box" class="hidden p-4 rounded-2xl border mb-4">
+                                <div id="secret-role-badge" class="text-xs font-black uppercase mb-1"></div>
+                                <p id="secret-role-desc" class="text-[11px] leading-relaxed text-slate-300"></p>
+                            </div>
+                            <button onclick="closeCheckRoleModal()" class="w-full bg-slate-800 text-white font-bold py-2 rounded-xl text-xs">Tutup</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PLAYERS POSITIONS STATUS -->
+                <div class="glass-panel p-4 rounded-2xl border border-slate-700 shadow-lg">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
+                        <i class="fa-solid fa-location-crosshairs text-amber-400 mr-1"></i> Posisi & Peran Pemain:
+                    </h3>
+                    <div id="players-status-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
+                </div>
+
+                <!-- LOG FEED -->
+                <div class="glass-panel p-3 rounded-2xl border border-slate-700 text-xs">
+                    <div class="font-bold text-slate-400 uppercase text-[10px] mb-1">📜 Catatan Log Simulasi:</div>
+                    <div id="activity-log" class="h-16 overflow-y-auto space-y-1 text-[11px] text-slate-300 font-mono">
+                        <p class="text-slate-500">[Sistem] Permainan siap dimulai.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel text-center py-2 border-t border-slate-800 text-[11px] text-slate-400">
+        Boardgame Karhutla Papua Barat Daya (Edisi Impostor) &copy; 2026
+    </footer>
+
+    <!-- SCRIPT GAMELOGIC -->
+    <script>
+        // TITIK WILAYAH (NODE) SESUAI TITIK MERAH PRESISI PADA PETA
+        const REGION_NODES = {
+            rajaampat: { id: "rajaampat", name: "Kabupaten Raja Ampat", x: 20, y: 19, connections: ["sorong", "tambrauw"] },
+            sorong:    { id: "sorong",    name: "Kota Sorong", x: 28, y: 29, connections: ["rajaampat", "kabsorong", "tambrauw"] },
+            kabsorong: { id: "kabsorong", name: "Kabupaten Sorong", x: 33, y: 40, connections: ["sorong", "sorsel", "maybrat"] },
+            tambrauw:  { id: "tambrauw",  name: "Tambrauw", x: 46, y: 25, connections: ["rajaampat", "sorong", "maybrat"] },
+            maybrat:   { id: "maybrat",   name: "Maybrat", x: 48, y: 39, connections: ["kabsorong", "tambrauw", "sorsel"] },
+            sorsel:    { id: "sorsel",    name: "Sorong Selatan", x: 41, y: 47, connections: ["kabsorong", "maybrat"] }
+        };
+
+        const REGION_LOCATIONS = [
+            { id: "sorong", name: "Kota Sorong", x: 28, y: 29 },
+            { id: "kabsorong", name: "Kabupaten Sorong", x: 33, y: 40 },
+            { id: "tambrauw", name: "Tambrauw", x: 46, y: 25 },
+            { id: "maybrat", name: "Maybrat", x: 48, y: 39 },
+            { id: "sorsel", name: "Sorong Selatan", x: 41, y: 47 },
+            { id: "rajaampat", name: "Kabupaten Raja Ampat", x: 20, y: 19 }
+        ];
+
+        const ROLE_LIST = ["Dokter", "Polisi", "Pemadam kebakaran", "Ketua adat", "Hakim", "Warga sipil"];
+
+        const CLUE_DATABASE = {
+            "Dokter": ["Sumpah Hipokrates", "Steril", "P3k"],
+            "Polisi": ["Penyelidikan", "Tkp", "Pistol"],
+            "Pemadam kebakaran": ["Air", "Selang", "Hydrant"],
+            "Ketua adat": ["Kampung", "marga", "Musyawarah"],
+            "Hakim": ["Consensus Gavel", "Keputusan", "Toga"],
+            "Warga sipil": ["Rumah", "Warga", "Domisili"]
+        };
+
+        // 27 KARTU EVENT UTAMA
+        const EVENT_CARDS_DATABASE = [
+            {
+                id: 1, locId: "sorong", title: "Percikan di Lereng Hutan Lindung Sorong",
+                story: "Pembakaran sampah rumah tangga di tepi batas pemukiman merembet ke serasah kering hutan lindung akibat angin kencang musim kemarau.",
+                impact: "Asap tebal mengganggu jarak pandang di jalan poros Sorong–Aimas; ancaman bagi resapan air kota.",
+                data: "Kecepatan angin mencapai 28 knot mempercepat perambatan api di serasah kering.",
+                opinion: "Warga menduga ini ulah proyek pelebaran jalan yang membuang tumpukan sampah vegetasi sembarangan.",
+                options: [
+                    { text: "Mengerahkan mobil pemadam dan menutup sementara ruas jalan poros Sorong–Aimas.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Mengerahkan seluruh warga sekitar untuk membuat barisan ember air estafet secara manual di titik pembakaran sampah.", correct: false, token: "Tenaga & Makanan" },
+                    { text: "Fokus melakukan pemadaman langsung menggunakan semprotan air bertekanan tinggi di sepanjang jalan poros.", correct: false, token: "Makanan & Air" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mengamankan keselamatan lalu lintas dari jarak pandang berbahaya sekaligus memadamkan titik api utama secara cepat.\n\nPengecoh 1: Estafet manual tidak efektif dan membahayakan warga akibat kecepatan angin tinggi (28 knot).\n\nPengecoh 2: Menangani dampak visual di jalan, tetapi membiarkan sumber api di dalam hutan lindung terus merembet."
+            },
+            {
+                id: 2, locId: "kabsorong", title: "Gambut Kering Klamono Terbakar",
+                story: "Kekeringan gambut akibat El Niño dan aktivitas manusia yang membuang puntung rokok sembarangan.",
+                impact: "Kebakaran mengancam pipa minyak Pertamina di Klamono hingga berisiko meledak.",
+                data: "Tekanan pipa Pertamina turun 15 PSI akibat pemanasan lokal.",
+                opinion: "Muncul gosip di warung kopi bahwa ini sabotase orang dalam yang protes soal ganti rugi tanah.",
+                options: [
+                    { text: "Berkoordinasi dengan Pertamina untuk mematikan katup jalur pipa terdampak dan melakukan pendinginan dengan busa kimia.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Menurunkan tim investigasi internal dan aparat keamanan untuk memeriksa seluruh pegawai Pertamina.", correct: false, token: "Obat & Air" },
+                    { text: "Membiarkan titik api kecil pada gambut karena fokus utama hanya memompa ulang tekanan pipa minyak.", correct: false, token: "Tenaga & Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mencegah ledakan pipa migas secara teknis menggunakan busa kimia khusus.\n\nPengecoh 1: Terjebak pada desas-desus warga, sementara bahaya fisik ledakan pipa diabaikan.\n\nPengecoh 2: Berfokus pada indikator angka teknis (PSI), tetapi mengabaikan suhu panas dari api gambut."
+            },
+            {
+                id: 3, locId: "kabsorong", title: "Buka Lahan Palawija di Seget",
+                story: "Pembukaan lahan memicu kebakaran di area pesisir.",
+                impact: "5 hektar vegetasi penyangga pesisir ludes, memicu respons gotong-royong warga kampung.",
+                data: "5 hektar mangrove sekunder musnah terbakar.",
+                opinion: "Pemuda kampung mengklaim investor sengaja membakar lahan agar izin alih fungsi kebun lebih gampang.",
+                options: [
+                    { text: "Mendukung gotong-royong warga dengan mengirimkan alat pemadam portable dan logistik pangan.", correct: true, token: "Makanan dan Tenaga" },
+                    { text: "Memanggil dan memeriksa investor perkebunan setempat atas tuduhan sengaja membakar lahan.", correct: false, token: "Obat & Air" },
+                    { text: "Memobilisasi warga kampung untuk memperluas area pembukaan lahan palawija di sisi berlawanan.", correct: false, token: "Obat & Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Memberikan bantuan langsung yang dibutuhkan warga di lapangan dan menjaga ketahanan fisik relawan.\n\nPengecoh 1: Berfokus pada tindakan hukum berdasarkan spekulasi opini saat api masih aktif.\n\nPengecoh 2: Membuka lahan baru saat kebakaran justru menambah bahan bakar kering."
+            },
+            {
+                id: 4, locId: "kabsorong", title: "Hutan Panas Koridor Salawati",
+                story: "Hutan rawa musiman yang mengering saat El Niño mengalami kebakaran bawah permukaan (ground fire).",
+                impact: "Asap pekat menyelimuti jalur pelayaran selat sempit antara Pulau Salawati dan daratan Sorong.",
+                data: "Suhu gambut bawah tanah mencapai 65°C (ground fire).",
+                opinion: "Nelayan mengira asap pekat itu bukan kebakaran hutan, melainkan uji coba senjata militer rahasia.",
+                options: [
+                    { text: "Mengerahkan ekskavator amfibi untuk menggali kanal basah guna menghentikan ground fire.", correct: true, token: "Tenaga" },
+                    { text: "Berkoordinasi dengan otoritas angkatan laut untuk menghentikan latihan militer rahasia.", correct: false, token: "Tenaga" },
+                    { text: "Menyiram permukaan rawa menggunakan air bertekanan tinggi secara masif.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Ekskavator amfibi dapat menembus rawa berlumpur untuk memotong jalur api bawah tanah.\n\nPengecoh 1: Isu latihan militer hanyalah mitos/opini salah.\n\nPengecoh 2: Menyiram permukaan tidak akan menjangkau bara di dalam lapisan gambut bawah tanah."
+            },
+            {
+                id: 5, locId: "sorong", title: "Api Unggun di Batas Makbon",
+                story: "Seseorang meninggalkan bara api unggun yang belum padam sempurna saat malam hari.",
+                impact: "Satwa malam panik bermigrasi mendekati perkampungan warga.",
+                data: "40 satwa malam bermigrasi mendekati radius 500 meter dari pemukiman.",
+                opinion: "Tetua adat menganggap turunnya satwa ini sebagai pertanda buruk akibat pelanggaran adat.",
+                options: [
+                    { text: "Melakukan penyisiran dan pemadaman sisipan bara di hutan produksi serta mengamankan batas desa.", correct: true, token: "Tenaga dan Air" },
+                    { text: "Mengadakan ritual adat pembersihan desa bersama tetua adat untuk mengusir pertanda buruk.", correct: false, token: "Tenaga" },
+                    { text: "Menangkap 40 satwa malam yang mendekati pemukiman untuk dikarantina di balai desa.", correct: false, token: "Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menangani sumber api (bara tersisa) sekaligus mencegah potensi konflik satwa.\n\nPengecoh 1: Menghormati tradisi, tetapi tidak memadamkan sisa bara api.\n\nPengecoh 2: Fokus menangani dampak tanpa menyelesaikan penyebab utamanya."
+            },
+            {
+                id: 6, locId: "tambrauw", title: "Kebakaran Karst Lembah Kebar",
+                story: "Padang savana Kebar terbakar secara luas akibat sisa api dan hembusan angin lembah.",
+                impact: "Habitat rumput Kebar terancam; kabut asap terjebak di mangkuk lembah pegunungan.",
+                data: "Kelembaban udara turun drastis hingga 32% akibat El Niño.",
+                opinion: "Peternak lokal menuduh dinas peternakan sengaja membakar savana untuk membasmi hama.",
+                options: [
+                    { text: "Membuat sekat bakar di sekeliling zona savana rumput Kebar dan menyemprotkan kabut air di lorong angin.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Memetakan populasi kutu sapi dan membagikan obat hama gratis kepada peternak lokal.", correct: false, token: "Makanan" },
+                    { text: "Evakuasi seluruh ternak sapi ke puncak pegunungan karst agar terhindar dari kabut asap.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Melindungi tanaman endemik rumput Kebar serta menekan laju penyebaran api.\n\nPengecoh 1: Merespons tuduhan peternak tanpa memadamkan api savana.\n\nPengecoh 2: Topografi karst terjal membahayakan ternak."
+            },
+            {
+                id: 7, locId: "tambrauw", title: "Ancaman Sarang Burung Pintar",
+                story: "Kebakaran vegetasi bawah merambat menuju zona pameran burung Namdur (Vogelkop Bowerbird).",
+                impact: "Komunitas ekowisata lokal dan ranger adat bergerak cepat membuat sekat bakar.",
+                data: "Pembuatan sekat bakar darurat sepanjang 1,2 kilometer oleh ranger.",
+                opinion: "Komunitas ekowisata menuding peneliti asing tidak hati-hati sampai memicu kebakaran.",
+                options: [
+                    { text: "Mendanai aksi darurat ranger adat untuk membangun sekat bakar secara manual guna melindungi habitat burung.", correct: true, token: "Tenaga" },
+                    { text: "Membekukan izin penelitian seluruh peneliti asing di Distrik Senopi.", correct: false, token: "Tenaga" },
+                    { text: "Memindahkan sarang-sarang burung Namdur ke lokasi konservasi buatan di luar hutan.", correct: false, token: "Tenaga dan Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Memperkuat aksi fisik ranger adat yang sedang membuat sekat bakar sepanjang 1,2 km.\n\nPengecoh 1: Terjebak pada tuduhan opini komunitas ekowisata.\n\nPengecoh 2: Burung Namdur tidak bisa dipindahkan sarangnya secara fisik tanpa merusaknya."
+            },
+            {
+                id: 8, locId: "tambrauw", title: "Jalur Logging Terisolir Fef",
+                story: "Sisa limbah tebangan kayu di jalur rintisan lama mengalami kebakaran spontan akibat gesekan.",
+                impact: "Jalur logistik antar-distrik terputus sementara akibat pohon tumbang yang terbakar.",
+                data: "3 jembatan kayu lumpuh akibat paparan panas ekstrem.",
+                opinion: "Perusahaan logging berdalih kabel baja putus karena disambar petir vulkanik.",
+                options: [
+                    { text: "Membersihkan puing tebangan kayu di sepanjang jalur darat dan membangun jembatan darurat.", correct: true, token: "Tenaga dan Makanan" },
+                    { text: "Menunggu tim BMKG datang mengonfirmasi keberadaan petir sebelum memadamkan api.", correct: false, token: "Tenaga, Makanan" },
+                    { text: "Membakar habis seluruh sisa kayu tebangan di sepanjang jalur.", correct: false, token: "Air, Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menangani dampak terputusnya jalur logistik dan kelumpuhan 3 jembatan vital.\n\nPengecoh 1: Menunggu konfirmasi menunda penanganan darurat.\n\nPengecoh 2: Tindakan membakar sisa kayu justru memperparah kerusakan."
+            },
+            {
+                id: 9, locId: "tambrauw", title: "Kebakaran Pesisir Penyu Abun",
+                story: "Api pembersihan kebun kelapa merembet ke vegetasi pantai tempat berteduh penyu belimbing.",
+                impact: "Suhu pasir meningkat, mengancam rasio penetasan telur penyu belimbing.",
+                data: "Suhu pasir pantai naik 4°C di atas batas normal penetasan telur penyu.",
+                opinion: "Warga menyalahkan nelayan bagan malam yang membuat api unggun terlalu dekat.",
+                options: [
+                    { text: "Menyiram zona sarang penyu dengan air untuk menurunkan suhu pasir dan memadamkan api vegetasi.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Melarang seluruh kapal nelayan bagan malam beroperasi di perairan pantai.", correct: false, token: "Makanan dan Tenaga" },
+                    { text: "Menggali seluruh telur penyu dan memindahkannya ke mesin inkubator buatan.", correct: false, token: "Makanan dan Air" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menurunkan suhu pasir yang mengancam telur penyu sekaligus memadamkan api pantai.\n\nPengecoh 1: Menyalahkan pihak luar tanpa mengatasi kenaikan suhu pasir.\n\nPengecoh 2: Pemindahan massal berisiko tinggi merusak embrio."
+            },
+            {
+                id: 10, locId: "tambrauw", title: "Kebakaran Hutan Sagu Tambrauw",
+                story: "Hutan dibakar untuk membuka lahan, dikeringkan secara paksa dan terbakar hebat.",
+                impact: "Hilangnya dusun sagu warga yang merupakan sumber pangan pokok.",
+                data: "12 dusun sagu produktif hancur total.",
+                opinion: "Muncul spekulasi lahan sengaja dibersihkan untuk proyek transmigrasi pangan.",
+                options: [
+                    { text: "Mengirimkan bantuan pangan darurat ke warga terdampak dan mengisolasi sisa dusun sagu.", correct: true, token: "Makanan dan Tenaga" },
+                    { text: "Menghentikan sementara seluruh proyek nasional di wilayah Papua.", correct: false, token: "Air dan Makanan" },
+                    { text: "Mengganti tanaman sagu yang terbakar dengan bibit padi irigasi secara instan.", correct: false, token: "Tenaga dan Air" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mengatasi ancaman krisis pangan akibat hancurnya 12 dusun sagu produktif.\n\nPengecoh 1: Keputusan birokratis ekstrim berdasarkan spekulasi opini.\n\nPengecoh 2: Tidak sesuai dengan pola konsumsi dan ekosistem lokal."
+            },
+            {
+                id: 11, locId: "maybrat", title: "Asap di Tepi Danau Ayamaru",
+                story: "Alang-alang tepi danau yang surut saat kemarau dibakar, namun api membesar ke hutan tepian danau.",
+                impact: "Kualitas air danau menurun; habitat ikan pelangi endemik (Melanotaenia boesemani) terganggu.",
+                data: "Permukaan air danau menyusut 1,8 meter dari batas normal.",
+                opinion: "Ada desas-desus ikan pelangi endemik sengaja diracun untuk menutupi konflik batas wilayah.",
+                options: [
+                    { text: "Memadamkan kebakaran alang-alang tepi danau dan memasang penyaring abu di muara air.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Menangkap oknum yang dituduh meracuni ikan berdasarkan isu konflik batas.", correct: false, token: "Makanan" },
+                    { text: "Menguras air danau untuk membersihkan endapan lumpur di dasar danau.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menghentikan pencemaran abu yang merusak habitat ikan pelangi endemik.\n\nPengecoh 1: Terkecoh oleh desas-desus warga tanpa dasar teknis.\n\nPengecoh 2: Tidak masuk akal saat air danau sedang menyusut 1,8 meter."
+            },
+            {
+                id: 12, locId: "maybrat", title: "Sekat Bakar Adat Ayawasi",
+                story: "Hutan ulayat nyaris terbakar dari kebun tetangga, namun hukum adat memberlakukan sanksi dan gotong-royong.",
+                impact: "Kerusakan hutan primer berhasil dicegah berkat kesiapsiagaan masyarakat adat.",
+                data: "Pemadaman berhasil dilakukan dalam waktu kurang dari 3 jam oleh tim adat.",
+                opinion: "Warga menganggap respon cepat ini membuktikan hukum adat lebih efektif dari pemerintah.",
+                options: [
+                    { text: "Memberikan apresiasi serta perlengkapan pemadam tambahan untuk memperkuat regu adat.", correct: true, token: "Tenaga" },
+                    { text: "Mengambil alih pengelolaan hutan ulayat Ayawasi ke bawah pemerintah distrik.", correct: false, token: "Tenaga" },
+                    { text: "Menjatuhkan denda uang tunai skala besar kepada pemilik kebun tanpa peradilan adat.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mengukuhkan keberhasilan mitigasi kearifan lokal.\n\nPengecoh 1: Merusak struktur kearifan lokal yang terbukti efektif.\n\nPengecoh 2: Memicu konflik antar-warga."
+            },
+            {
+                id: 13, locId: "maybrat", title: "Sengketa Lahan Berujung Bara di Aitinyo",
+                story: "Oknum membakar semak belukar pada area tapal batas marga untuk mematok klaim tanah.",
+                impact: "Konflik horizontal antar-marga meningkat bersamaan dengan kabut asap.",
+                data: "Konflik antar-marga meningkat tajam hingga 40%.",
+                opinion: "Pemerintah distrik berdalih asap tebal itu cuma sisa jerami pertanian biasa.",
+                options: [
+                    { text: "Mengerahkan pemadam untuk memadamkan semak belukar dan memfasilitasi mediasi tokoh adat.", correct: true, token: "Tenaga" },
+                    { text: "Membiarkan api membesar agar lahan sengketa terbakar habis sehingga batas tanah terlihat.", correct: false, token: "Tenaga" },
+                    { text: "Membenarkan pernyataan pemerintah distrik bahwa itu hanya asap jerami biasa.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menangani fisik api sekaligus menyelesaikan akar masalah konflik sosial (40%).\n\nPengecoh 1: Memperparah kebakaran hutan dan memperuncing perselisihan.\n\nPengecoh 2: Pasif dan terpengaruh opini penangkalan birokrasi."
+            },
+            {
+                id: 14, locId: "maybrat", title: "Kebakaran Jalur Pipa Air Mare",
+                story: "Kebakaran semak melahap pipa paralon saluran air bersih dari mata air gunung menuju kampung.",
+                impact: "Warga tiga kampung krisis air bersih selama proses perbaikan.",
+                data: "Pipa air bersih paralon sepanjang 450 meter rusak leleh.",
+                opinion: "Warga mengira pipa rusak karena geseran gempa bumi kecil.",
+                options: [
+                    { text: "Mendistribusikan tangki air bersih darurat ke 3 kampung dan mengganti pipa paralon.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Mendatangkan tim ahli geologi untuk mengukur magnitudo gempa bumi.", correct: false, token: "Tenaga" },
+                    { text: "The nyambung pipa meleleh menggunakan tumpukan bambu rawa seadanya.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menyelesaikan dampak krisis air bersih warga serta memulihkan 450 meter pipa.\n\nPengecoh 1: Terjebak pada dugaan gempa bumi yang keliru.\n\nPengecoh 2: Solusi sementara yang tidak tahan lama."
+            },
+            {
+                id: 15, locId: "sorsel", title: "Bara Rawa Gambut Teminabuan",
+                story: "Musim kemarau panjang menurunkan muka air gambut, memicu kebakaran dalam tanah (peat fire).",
+                impact: "Asap belerang tebal bertahan berminggu-minggu; membutuhkan injeksi air ke dalam tanah.",
+                data: "Titik api gambut membara sampai kedalaman 1,5 meter di dalam tanah.",
+                opinion: "Tim investigasi curiga ada pembiaran untuk membuka kebun sawit ilegal.",
+                options: [
+                    { text: "Menggunakan sumur pasak (suntik gambut) untuk menginjeksikan air ke kedalaman 1,5 meter.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Menyemprot bagian permukaan tanah gambut dari atas helikopter secara terus-menerus.", correct: false, token: "Tenaga" },
+                    { text: "Menutup seluruh izin kebun sawit di Kabupaten Sorong Selatan.", correct: false, token: "Air & Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Metode teknis yang efektif memadamkan peat fire sedalam 1,5 meter.\n\nPengecoh 1: Air dari helikopter hanya membasahi permukaan.\n\nPengecoh 2: Keputusan administrasi yang membiarkan api gambut terus membara."
+            },
+            {
+                id: 16, locId: "sorsel", title: "Kebakaran Hutan Sagu & Krisis Pangan",
+                story: "Hutan sagu liar yang menjadi sumber pangan pokok warga terancam oleh api rambatan.",
+                impact: "Ketahanan pangan darurat kampung terancam jika pohon sagu produktif musnah.",
+                data: "Cadangan makanan pokok (pati sagu) tinggal cukup untuk 7 hari ke depan.",
+                opinion: "Isu lokal menyebut kebakaran disulut oleh persaingan bisnis pengumpul sagu.",
+                options: [
+                    { text: "Memprioritaskan pemadaman di perimeter hutan sagu dan menyalurkan cadangan pangan darurat.", correct: true, token: "Makanan dan Tenaga" },
+                    { text: "Mengumpulkan pengumpul sagu tradisional untuk menyepakati harga standar pati sagu.", correct: false, token: "Tenaga" },
+                    { text: "Memanen seluruh pohon sagu secara serentak dalam satu hari sebelum tersentuh api.", correct: false, token: "Tenaga, Air, Makanan" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mengamankan sumber pangan di tengah krisis (cadangan 7 hari).\n\nPengecoh 1: Menanggapi isu persaingan bisnis tanpa memadamkan api.\n\nPengecoh 2: Merusak regenerasi alami hutan sagu."
+            },
+            {
+                id: 17, locId: "sorsel", title: "Kebakaran Hutan Mangrove Kokoda",
+                story: "Tumpukan daun dan pelepah bakau/nipah terbakar akibat aktivitas pembuat arang tradisional.",
+                impact: "Erosi tanggul muara sungai dan kerusakan zona pemijahan kepiting bakau.",
+                data: "Garis pantai muara terkikis 2,3 meter karena pohon bakau mati.",
+                opinion: "Pembuat arang menolak disalahkan dan bilang bakau mati karena limbah hulu.",
+                options: [
+                    { text: "Memadamkan api di muara sungai dan menanam kembali (reboisasi) bibit mangrove.", correct: true, token: "Tenaga dan Air" },
+                    { text: "Menutup pabrik industri di hulu sungai yang dituduh pencemar.", correct: false, token: "Tenaga" },
+                    { text: "Membangun dinding beton pemecah ombak di sepanjang pantai.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menangani sumber kebakaran arang serta menghentikan erosi 2,3 meter.\n\nPengecoh 1: Terkecoh pengalihan kesalahan dari pembuat arang.\n\nPengecoh 2: Solusi mahal yang merusak zona pemijahan kepiting."
+            },
+            {
+                id: 18, locId: "sorsel", title: "Jalur Sungai Kais Terisolasi Oleh Asap Tebal",
+                story: "Kebakaran hutan tepi sungai menutup jalur transportasi longboat dengan jarak pandang minim.",
+                impact: "Pasokan bahan pokok ke distrik pedalaman terhenti total selama 2 hari.",
+                data: "Jarak pandang di bawah 3 meter, melumpuhkan 12 kapal longboat.",
+                opinion: "Warga sempat mengira itu cuma kabut uap air biasa.",
+                options: [
+                    { text: "Memadamkan vegetasi tepi sungai menggunakan pompa apung dan menyiagakan lampu navigasi.", correct: true, token: "Tenaga dan Makanan" },
+                    { text: "Membiarkan kapal longboat menerobos kabut asap dengan kecepatan tinggi.", correct: false, token: "Tenaga" },
+                    { text: "Mengimbau warga agar tidak keluar rumah menganggap itu kabut embun pagi.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Pompa apung efektif memadamkan tepi sungai, memulihkan jarak pandang <3 meter.\n\nPengecoh 1: Sangat membahayakan keselamatan pelayaran.\n\nPengecoh 2: Mengamini opini salah warga."
+            },
+            {
+                id: 19, locId: "sorsel", title: "Api Pembuatan Perahu Kalitami",
+                story: "Metode pelunakan kayu gelondongan perahu ditinggal tanpa pengawasan hingga merembet ke tatal.",
+                impact: "Pohon-pohon kayu besi (Intsia) berukuran besar ikut hangus terbakar.",
+                data: "4 pohon kayu besi besar berdiameter di atas 80 cm ikut hangus.",
+                opinion: "Perajin beralasan api berasal dari puntung rokok pencari gaharu ilegal.",
+                options: [
+                    { text: "Melakukan pemadaman tatal dan memberikan pendampingan metode pelunakan kayu aman.", correct: true, token: "Tenaga" },
+                    { text: "Razia besar-besaran terhadap pencari gaharu ilegal di seluruh hutan.", correct: false, token: "Tenaga" },
+                    { text: "Melarang total pembuatan perahu tradisional di Sorong Selatan.", correct: false, token: "Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menghentikan rusaknya pohon kayu besi (>80 cm) dan mengedukasi perajin.\n\nPengecoh 1: Terjebak dalih perajin perahu.\n\nPengecoh 2: Mematikan mata pencaharian dan budaya lokal."
+            },
+            {
+                id: 20, locId: "rajaampat", title: "Bara di Pulau Karst Waigeo",
+                story: "Tanah tipis dan kering di atas batu kapur mudah terbakar. Pohon khas Waigeo dan sarang Cendrawasih terancam.",
+                impact: "Medan berbatu, terjal, dan sulit dijangkau; pemadaman hanya bisa dilakukan dari laut.",
+                data: "Kemiringan tebing curam 65 derajat membuat tim darat kesulitan.",
+                opinion: "Pemandu wisata menduga puntung rokok dibuang sembarangan oleh pelancong.",
+                options: [
+                    { text: "Mengerahkan kapal patroli pemadam dari pesisir dengan penyemprot air tekanan tinggi.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Memaksa regu pemadam memanjat tebing karst 65 derajat tanpa tali pengaman.", correct: false, token: "Air, Tenaga, Makanan" },
+                    { text: "Menutup seluruh tempat wisata di Raja Ampat untuk mencari wisatawan.", correct: false, token: "Air & Obat" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menyesuaikan dengan data kemiringan 65 derajat.\n\nPengecoh 1: Membahayakan keselamatan jiwa petugas.\n\nPengecoh 2: Berfokus pada opini pencarian pelaku."
+            },
+            {
+                id: 21, locId: "rajaampat", title: "Kebakaran Savana Puncak Wayag",
+                story: "Semak-semak kering di atas bukit terbakar, merusak pemandangan ikonik Wayag.",
+                impact: "Rumput dan tumbuhan di puncak bukit terbakar dan menjadi hitam.",
+                data: "300 meter persegi rumput endemik di puncak bukit menghitam.",
+                opinion: "Ada teori konspirasi bukit sengaja dibakar agar izin tambang gampang keluar.",
+                options: [
+                    { text: "Mobilisasi tim konservasi membawa pompa portable tancap dan membatasi kuota kunjungan.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Melakukan penyelidikan atas tuduhan konspirasi izin tambang.", correct: false, token: "Air & Makanan" },
+                    { text: "Mengecat kembali bekas rumput yang menghitam dengan cat hijau.", correct: false, token: "Makanan & Air" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menyelamatkan area rumput endemik tersisa.\n\nPengecoh 1: Mengikuti teori konspirasi.\n\nPengecoh 2: Solusi kosmetik yang merusak lingkungan."
+            },
+            {
+                id: 22, locId: "rajaampat", title: "Api Kebun Kelapa Batanta",
+                story: "Warga membakar sabut kelapa mengusir nyamuk, namun api merembet ke hutan lereng bukit.",
+                impact: "Air Terjun Batanta menjadi kotor dan keruh akibat abu terbawa air hujan.",
+                data: "Tingkat kekeruhan air terjun melonjak hingga 120 NTU.",
+                opinion: "Warga pesisir menuduh perkebunan sawit di pulau tetangga.",
+                options: [
+                    { text: "Memadamkan api lereng bukit dan membuat tanggul penahan abu erosi.", correct: true, token: "Air dan Tenaga" },
+                    { text: "Mengirim surat protes dan menuntut ganti rugi ke perusahaan sawit.", correct: false, token: "Obat & Air" },
+                    { text: "Mengalirkan zat kimia penjernih air dalam jumlah besar ke hulu air terjun.", correct: false, token: "Air & Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menghilangkan sumber api dan menurunkan kekeruhan (120 NTU).\n\nPengecoh 1: Terkecoh tuduhan salah warga pesisir.\n\nPengecoh 2: Berisiko meracuni ekosistem sungai alami."
+            },
+            {
+                id: 23, locId: "rajaampat", title: "Darurat Konservasi Pulau Misool",
+                story: "Kebakaran pantai mendekati pos penjaga hutan dan kawasan mangrove.",
+                impact: "Patroli penjaga laut melawan illegal fishing turun drastis 65%.",
+                opinion: "Nelayan curiga pelaku bom ikan sengaja membuat kebakaran hutan.",
+                options: [
+                    { text: "Mengirimkan regu pemadam bantuan khusus darat agar petugas bisa patroli laut lagi.", correct: true, token: "Tenaga dan Air" },
+                    { text: "Membiarkan pos penjaga hutan terbakar demi fokus patroli laut.", correct: false, token: "Tenaga" },
+                    { text: "Memagari seluruh kawasan pesisir pantai Misool dengan kawat berduri.", correct: false, token: "Obat & Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Mengembalikan efektivitas patroli laut (65%) sekaligus amankan pos.\n\nPengecoh 1: Mengorbankan pos darat dan mangrove.\n\nPengecoh 2: Membatasi akses tanpa memadamkan api."
+            },
+            {
+                id: 24, locId: "rajaampat", title: "Titik Api di Cagar Alam Waigeo Barat",
+                story: "Cuaca kering membuat gesekan antar-cabang bambu memicu api.",
+                impact: "Api merusak habitat katak Waigeo dan anggrek langka.",
+                data: "Spesies langka katak Waigeo terancam kehilangan habitat.",
+                opinion: "Warga menganggap alasan gesekan bambu hanya akal-akalan krisis iklim.",
+                options: [
+                    { text: "Memotong rumpun bambu kering (thinning) serta menyemprotkan air di habitat katak.", correct: true, token: "Tenaga dan Air" },
+                    { text: "Mengadakan kampanye protes iklim global di kota.", correct: false, token: "Air & Obat" },
+                    { text: "Menebang seluruh vegetasi pohon anggrek langka untuk diamankan ke museum.", correct: false, token: "Air & Tenaga" }
+                ],
+                explanation: "Alasan Pilihan Tepat: Menghilangkan pemicu alamiah (gesekan bambu) dan lindungi fauna langka.\n\nPengecoh 1: Terjebak perdebatan opini warga.\n\nPengecoh 2: Merusak habitat asli spesies."
+            },
+            {
+                id: 25, locId: "kabsorong", title: "Patroli Drone Terkendala Asap di KTI",
+                story: "Drone mendeteksi 4 hotspot baru, namun jarak pandang minim menyulitkan pemetaan.",
+                impact: "Tim reaksi cepat harus navigasi kompas darat melintasi hutan lebat.",
+                data: "Kamera sensor panas drone gagal bekerja optimal karena tertutup asap.",
+                opinion: "Tim di lapangan mengira hotspot itu sinyal SOS pendaki tersesat.",
+                options: [
+                    { text: "Menggabungkan data kompas manual darat dengan sensor the
